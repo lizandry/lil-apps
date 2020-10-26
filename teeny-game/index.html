@@ -27,6 +27,7 @@
 
       let screenWidth = canvas.width
       let screenHeight = canvas.clientHeight
+      let isGameLive = true;
 
       class GameCharacter {
         constructor(x, y, width, height, color, speed) {
@@ -36,6 +37,7 @@
           this.height = height;
           this.color = color;
           this.speed = speed;
+          this.maxSpeed = 3;
         }
         moveVertically() {
           if (this.y > screenHeight -50 || this.y < 10) {
@@ -45,35 +47,65 @@
           this.y += this.speed;
         }
         moveHorizontally() {
-          if (this.x > screenWidth || this.x < 0) {
-            this.speed = -this.speed;
-          }
-
-          this.x += this.speed;
+          // if (this.x > 400) {
+          //   // this.speed = 0;
+          //   // alert('congrats, you win!');
+          // }
+            this.x += this.speed;
         }
       }
 
       let player = new GameCharacter(
-        50, 50, 50, 50, 'rgb(0, 0, 225)', 2
+        50, 200, 50, 50, 'rgb(0, 0, 225)', 0
       );
       let rec2 = new GameCharacter(
         500, 50, 60, 40, '#000000', 2
-      )
+      );
       let rec3 = new GameCharacter(
-        screenWidth - 600, 400, 50, 70, 'rgb(255, 0, 0)', 4
-      )
-
+        screenWidth - 500, 400, 50, 70, 'rgb(100, 100, 100)', 5
+      );
       let rec4 = new GameCharacter(
-        275, 300, 100, 30, 'rgb(0, 225, 0)', 3
-      )
+        275, 300, 100, 30, 'rgb(0, 150, 125)', 3
+      );
+      let goal = new GameCharacter(
+        screenWidth - 15, 0, 20, screenHeight, 'black', 0
+      );
 
-      let enemies = [rec2, rec3, rec4]
+      let enemies = [rec2, rec3, rec4];
+
+      document.onkeydown = function(event) {
+        let keyPressed = event.keyCode;
+        if (keyPressed === 39) { // 39 = right arrow
+          player.speed = player.maxSpeed
+        } else if (keyPressed === 37) {
+          player.speed = -player.maxSpeed
+        }
+      };
+      document.onkeyup = function(event) { // 39 = right arrow
+          player.speed = 0;
+      };
+
+      let checkCollisions = function(obj1, obj2) {
+        // let xOverlap = Math.abs(obj1.x - obj2.x) <= Math.max(obj1.width, obj2.width);
+        // let yOverlap = Math.abs(obj1.y - obj2.y) <= Math.max(obj1.height, obj2.height);
+
+        // return xOverlap && yOverlap;
+        let obj1x2 = obj1.x + obj1.width;
+        let obj2x2 = obj2.x + obj2.width;
+        let obj1y2 = obj1.y + obj1.height;
+        let obj2y2 = obj2.y + obj2.height;
+
+        return obj1.x < obj2x2 && obj1x2 > obj2.x && obj1.y < obj2y2 && obj1y2 > obj2.y;
+      }
 
       let draw = function() {
         ctx.clearRect(0, 0, screenWidth, screenHeight);
 
         ctx.fillStyle = player.color;
         ctx.fillRect(player.x, player.y, player.width, player.height);
+
+        ctx.fillStyle = goal.color;
+        ctx.fillRect(goal.x, goal.y, goal.width, goal.height);
 
         enemies.forEach(function(element) {
           ctx.fillStyle = element.color;
@@ -82,17 +114,37 @@
       }
 
       let update = function() {
+        if (checkCollisions(player, goal)) {
+          goal.color = 'green'
+          endGameLogic('you win!!')
+          // alert('congrats you win!!')
+        }
+
+        player.moveHorizontally();
         enemies.forEach(function(element) {
+          if (checkCollisions(player, element)) {
+            element.color = 'red'
+            endGameLogic('oops! try again')
+            // alert('oops! game over')
+          }
           element.moveVertically();
         })
         
       }
 
+      let endGameLogic = function(text, player, collis) {
+        isGameLive = false;
+        alert(text);
+        window.location='';
+      }
 
       let step = function() {
         update();
         draw();
-        window.requestAnimationFrame(step)
+        
+        if (isGameLive) {
+          window.requestAnimationFrame(step)
+        }
       }
       step();
 
