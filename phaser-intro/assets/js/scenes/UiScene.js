@@ -1,9 +1,6 @@
-// layering and this scene in particular doesn't work right, suspect phaser has changed some stuff since the tutorial i'm using was uploaded. not a big deal, just using the tutorial to refamiliarize myself with js syntax and refactoring
-
 class UiScene extends Phaser.Scene {
   constructor() {
     super('Ui');
-
   }
 
   init() {
@@ -11,8 +8,8 @@ class UiScene extends Phaser.Scene {
   }
 
   create() {
-    this.setupUiElements;
-    this.setupEvents;
+    this.setupUiElements();
+    this.setupEvents();
   }
 
   setupUiElements() {
